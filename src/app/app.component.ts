@@ -1,42 +1,82 @@
-import { Component, Input, NgModule } from '@angular/core';
+import { Component, Input, NgModule, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+@Injectable()
 export class AppComponent {
   title = 'gti-tts';
-  lang = 'en-US';
+  media: any = undefined;
+  audio: any = undefined;
+  form: FormGroup;
 
-  text_ts: string = 'Google Cloud Text-to-Speech enables developers to synthesize natural-sounding speech with 100+ voices, available in multiple languages and variants. It applies DeepMind’s groundbreaking research in WaveNet and Google’s powerful neural networks to deliver the highest fidelity possible. As an easy-to-use API, you can create lifelike interactions with your users, across many applications and devices.';
+  constructor(private builder: FormBuilder, private http: HttpClient, private sanitizer: DomSanitizer) {
+    this.form = builder.group(
+      {
+        api_key: 'AIzaSyAzYom931ROQucVv_oXtSCnb1P6wYhathw',
+        lang: 'en-US',
+        text: 'Google Cloud Text-to-Speech enables developers to synthesize natural-sounding speech with 100+ voices, available in multiple languages and variants.',
+        pitch: 0.0,
+        speed: 1.0
+      }
+    )
+  }
 
-  constructAPIRequest(text_ts: string, lang: string) {
+  constructAPIRequest() {
     return {
       "audioConfig": {
-        "audioEncoding": "LINEAR16",
-        "pitch": 0,
-        "speakingRate": 1,
+        "audioEncoding": "MP3",
+        "pitch": this.form.value.pitch,
+        "speakingRate": this.form.value.speed,
       },
       "input": {
-        "text": text_ts
+        "text": this.form.value.text
       },
       "voice": {
-        "languageCode": lang,
-        "name": lang + "-Wavenet-A",
+        "languageCode": this.form.value.lang,
+        "name": this.form.value.lang + "-Standard-A",
         "ssmlGender": 'NEUTRAL'
       }
     };
   }
 
-  public handleTextChange(text: string) {
-    this.text_ts = text;
-  }
-
-  public handleSpeakRequest(event: Event) {
-    event.preventDefault();
-
-    const requestBody = this.constructAPIRequest(this.text_ts, this.lang);
+  public onSubmit() {
+    const requestBody: ApiReq = this.constructAPIRequest();
     console.log(requestBody);
+
+    this.http.post("https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=" + this.form.value.api_key, requestBody, { headers: { 'Content-Type': 'application/json' } })
+      .subscribe((data: any) => {
+        this.media = this.sanitizer.bypassSecurityTrustResourceUrl('data:audio/mp3;base64,' + data['audioContent']);
+
+        if (this.audio !== undefined) {
+          this.audio.pause();
+        }
+
+        this.audio = new Audio('data:audio/mp3;base64,' + data['audioContent']);
+        this.audio.load();
+        this.audio.play();
+      })
   }
+}
+
+export interface ApiReq {
+
+  audioConfig: {
+    audioEncoding: string,
+    pitch: number
+    speakingRate: number
+
+  };
+  input: {
+    text: string
+  };
+  voice: {
+    languageCode: string,
+    name: string
+  };
 }

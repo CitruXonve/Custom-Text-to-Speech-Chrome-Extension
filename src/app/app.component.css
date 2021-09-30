@@ -44,8 +44,12 @@ section {
   width: 100%;
 }
 
-#text-ts {
-  height: 4rem;
+.example-half-width {
+  width: 48%;
+}
+
+.example-quarter-width {
+  width: 23%;
 }
 
 .row {
@@ -65,4 +69,17 @@ mat-form-field {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.form-card {
+
+  top: 20%;
+  left: 20%;
+  height: auto;
+  width: 50%;
+
+}
+
+.text-panel {
+  width: 100%;
 }

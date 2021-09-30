@@ -1,42 +1,54 @@
-<p>
-  <mat-toolbar color="accent">
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span>My App</span>
-    <span class="example-spacer"></span>
-    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-      <mat-icon>favorite</mat-icon>
-    </button>
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-      <mat-icon>share</mat-icon>
-    </button>
-  </mat-toolbar>
-</p>
 <mat-divider></mat-divider>
-<section>
-  <form class="example-form">
-
-    <div class="flex-container">
+<mat-card class="form-card" fxLayout.md>
+  <mat-card-header color="primary">
+    <mat-card-title>GCP Text To Speech</mat-card-title>
+    <mat-card-subtitle>Angular powered</mat-card-subtitle>
+  </mat-card-header>
+  <form class="example-form" [formGroup]="form">
+    <mat-card-content align="center">
       <mat-form-field class="example-full-width" appearance="fill">
         <mat-label>Text to Speak</mat-label>
-        <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="1" id="text-ts" placeholder="Ex. It makes me feel..."
-          (ngModelChange)="handleTextChange($event)" [ngModel]="text_ts"
-          [ngModelOptions]="{standalone:true}"></textarea>
+        <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="1" placeholder="Ex. It makes me feel..."
+          formControlName="text"></textarea>
       </mat-form-field>
-    </div>
 
-    <div class="flex-container">
-      <mat-form-field appearance="fill">
-        <mat-label>Language / locale</mat-label>
-        <mat-select [(value)]="lang">
-          <mat-option value="en-US">English (United States)</mat-option>
-          <mat-option value="en-GB">English (Great Britain)</mat-option>
-          <mat-option value="en-AU">English (Australia)</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <button mat-raised-button color="accent" (click)="handleSpeakRequest($event)">SPEAK IT</button>
-    </div>
+      <div fxLayout="row">
+        <mat-form-field appearance="fill" fxFlex="50">
+          <mat-label>Language / locale</mat-label>
+          <mat-select formControlName="lang">
+            <mat-option value="en-US">English (United States)</mat-option>
+            <mat-option value="en-GB">English (Great Britain)</mat-option>
+            <mat-option value="en-AU">English (Australia)</mat-option>
+          </mat-select>
+        </mat-form-field>
 
+        <mat-form-field appearance="fill" fxFlex="25">
+          <mat-label>Pitch</mat-label>
+          <textarea matInput formControlName="pitch" rows="1" cols="1"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="25">
+          <mat-label>Pitch</mat-label>
+          <textarea matInput formControlName="speed" rows="1"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="row">
+        <button mat-raised-button color="accent" [disabled]="!form.valid"  (click)="onSubmit()">SPEAK IT</button>
+      </div>
+
+      <div fxLayout="row">
+        <!-- <audio controls *ngIf="media!==undefined" preload="none" autoplay> -->
+        <!-- <audio controls preload="none" autoplay> -->
+          <!-- <source [(src)]="media" type="audio/mpeg"> -->
+        <!-- </audio> -->
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+    </mat-card-actions>
+    <mat-card-footer>
+    </mat-card-footer>
   </form>
+</mat-card>
+<section>
 </section>
