@@ -2,6 +2,7 @@ import { Component, Input, NgModule, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import * as config from 'config';
 
 @Component({
   selector: 'app-root',
@@ -18,11 +19,8 @@ export class AppComponent {
   constructor(private builder: FormBuilder, private http: HttpClient, private sanitizer: DomSanitizer) {
     this.form = builder.group(
       {
-        api_key: 'AIzaSyAzYom931ROQucVv_oXtSCnb1P6wYhathw',
-        lang: 'en-US',
-        text: 'Google Cloud Text-to-Speech enables developers to synthesize natural-sounding speech with 100+ voices, available in multiple languages and variants.',
-        pitch: 0.0,
-        speed: 1.0
+        ...config.defaults,
+        api_key: config.apiKey,
       }
     )
   }
@@ -30,7 +28,7 @@ export class AppComponent {
   constructAPIRequest() {
     return {
       "audioConfig": {
-        "audioEncoding": "MP3",
+        "audioEncoding": this.form.value.audioEncoding,
         "pitch": this.form.value.pitch,
         "speakingRate": this.form.value.speed,
       },
@@ -40,7 +38,7 @@ export class AppComponent {
       "voice": {
         "languageCode": this.form.value.lang,
         "name": this.form.value.lang + "-Standard-A",
-        "ssmlGender": 'NEUTRAL'
+        "ssmlGender": this.form.value.gender
       }
     };
   }
@@ -49,9 +47,9 @@ export class AppComponent {
     const requestBody: ApiReq = this.constructAPIRequest();
     console.log(requestBody);
 
-    this.http.post("https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=" + this.form.value.api_key, requestBody, { headers: { 'Content-Type': 'application/json' } })
+    this.http.post(config.ttsApiUrl, requestBody, { headers: { 'Content-Type': 'application/json' } })
       .subscribe((data: any) => {
-        this.media = this.sanitizer.bypassSecurityTrustResourceUrl('data:audio/mp3;base64,' + data['audioContent']);
+        this.media = this.sanitizer.bypassSecurityTrustResourceUrl(this.form.value.resourceType + data['audioContent']);
 
         if (this.audio !== undefined) {
           this.audio.pause();
